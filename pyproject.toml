@@ -1,67 +1,68 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ['hatchling']
+build-backend = 'hatchling.build'
 
 [project]
-name = "fsm-parser"
+name = 'fsm-parser'
 description = ''
-readme = "README.md"
-requires-python = ">=3.7"
-license = "MIT"
+readme = 'README.md'
+requires-python = '>=3.7'
+license = 'MIT'
 keywords = []
 authors = [
-  { name = "Tomer Manzur", email = "90573138+syniex@users.noreply.github.com" },
+  { name = 'Tomer Manzur', email = '90573138+syniex@users.noreply.github.com' },
 ]
 classifiers = [
-  "Development Status :: 4 - Beta",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3.7",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
+  'Development Status :: 4 - Beta',
+  'Programming Language :: Python',
+  'Programming Language :: Python :: 3.7',
+  'Programming Language :: Python :: 3.8',
+  'Programming Language :: Python :: 3.9',
+  'Programming Language :: Python :: 3.10',
+  'Programming Language :: Python :: 3.11',
+  'Programming Language :: Python :: Implementation :: CPython',
+  'Programming Language :: Python :: Implementation :: PyPy',
 ]
 dependencies = []
-dynamic = ["version"]
+dynamic = ['version']
 
 [project.urls]
-Documentation = "https://github.com/syniex/fsmparser#readme"
-Issues = "https://github.com/syniex/fsmparser/issues"
-Source = "https://github.com/syniex/fsmparser"
+Documentation = 'https://github.com/syniex/fsmparser#readme'
+Issues = 'https://github.com/syniex/fsmparser/issues'
+Source = 'https://github.com/syniex/fsmparser'
 
 [tool.hatch.version]
-path = "fsmparser/__about__.py"
+path = 'fsmparser/__about__.py'
 
 [tool.hatch.envs.default]
 dependencies = [
-  "pytest",
-  "pytest-cov",
-  "black",
-  "ruff",
-  "mypy"
+  'pre-commit',
+  'pytest',
+  'pytest-cov',
+  'black',
+  'ruff',
+  'mypy'
 ]
 [tool.hatch.envs.default.scripts]
-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=fsmparser --cov=tests {args}"
-no-cov = "cov --no-cov {args}"
+cov = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=fsmparser --cov=tests {args}'
+no-cov = 'cov --no-cov {args}'
 
 [[tool.hatch.envs.test.matrix]]
-python = ["37", "38", "39", "310", "311"]
+python = ['37', '38', '39', '310', '311']
 
 [tool.coverage.run]
 branch = true
 parallel = true
 omit = [
-  "fsmparser/__about__.py",
+  'fsmparser/__about__.py',
 ]
 
 [tool.coverage.report]
 exclude_lines = [
-  "no cov",
-  "if __name__ == .__main__.:",
-  "if TYPE_CHECKING:",
-  "if typing.TYPE_CHECKING:"
+  'no cov',
+  'if __name__ == .__main__.:',
+  'if TYPE_CHECKING:',
+  'if typing.TYPE_CHECKING:'
 ]
 
 [tool.mypy]
@@ -72,10 +73,12 @@ line-length = 120
 skip-string-normalization = true
 
 [tool.ruff]
+target-version = 'py37'
+extend-select = ['Q', 'RUF100', 'C90', 'UP', 'I','PTH']
 line-length = 120
 flake8-quotes = {inline-quotes = 'single', multiline-quotes = 'double'}
 mccabe = { max-complexity = 14 }
 
 [tool.ruff.isort]
 lines-after-imports = 2
-known-first-party = ["fsmparser"]
+known-first-party = ['fsmparser', 'tests']
