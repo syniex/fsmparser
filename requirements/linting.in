@@ -1,0 +1,5 @@
+black
+pyupgrade
+mypy
+ruff
+pre-commit

@@ -1,6 +1,27 @@
 .DEFAULT_GOAL := all
 sources = fsmparser tests
 
+.PHONY: setup
+setup:
+	pip install pipx
+	pipx install hatch
+	pipx install black
+	pipx install ruff
+
+.PHONY: install
+install:
+	python -m pip install -U pip
+	pip install -r requirements/all.txt
+	pip install -e .
+
+.PHONY: refresh-lockfiles
+refresh-requirements:       ## Sync lockfiles with requirements files.
+	bash requirements/refresh.sh
+
+.PHONY: rebuild-lockfiles
+rebuild-lockfiles:       ## Rebuild lockfiles from scratch, updating all dependencies
+	bash requirements/rebuild.s
+
 .PHONY: format
 format:
 	black $(sources)
