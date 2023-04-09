@@ -24,7 +24,6 @@ class FSMRuleMetaclass(type):
 
     @functools.lru_cache(maxsize=1)
     def _action2_re(cls) -> 're.Pattern[str]':
-        print(fr'\s+{operation.Operation.operations}(\s+{cls.new_state})?$')
         return re.compile(fr'\s+{operation.Operation.operations}(\s+{cls.new_state})?$')
 
     @functools.lru_cache(maxsize=1)
