@@ -6,5 +6,9 @@ class TemplateError(FSMError):
     ...
 
 
+class ParseError(TemplateError):
+    ...
+
+
 class TemplateNotFound(TemplateError):
     ...
