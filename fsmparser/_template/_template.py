@@ -69,7 +69,7 @@ class FSMTemplate:
         self._content.seek(0)
 
     def _parse_states(self) -> None:
-        state: 'None | FSMState' = None
+        state: 'typing.Union[None, FSMState]' = None
         for index, line in enumerate(self._content, start=1):
             line = line.rstrip()
             if not line or self._comment_re.match(line):
@@ -96,8 +96,8 @@ class FSMTemplate:
             state.validate()
 
     @property
-    def results(self) -> 'typing.List[typing.Dict[str, str | typing.List[str] | None]]':
-        results: 'typing.List[typing.Dict[str, str | typing.List[str] | None]]' = []
+    def results(self) -> 'typing.List[typing.Dict[str, typing.Union[str,None, typing.List[str]]]]':
+        results: 'typing.List[typing.Dict[str, typing.Union[str,None, typing.List[str]]]]' = []
         for result in self._results:
             results.append({value.name: value_data for value, value_data in zip(self._values.values(), result)})
         return results
@@ -113,7 +113,7 @@ class FSMTemplate:
             if rule.break_current_state():
                 break
 
-    def parse(self, _input: str, /) -> 'typing.List[typing.Dict[str, str | typing.List[str] | None]]':
+    def parse(self, _input: str, /) -> 'typing.List[typing.Dict[str, typing.Union[str,None, typing.List[str]]]]':
         self.reset()
         for line in _input.splitlines():
             self._check_line(line)
@@ -125,5 +125,5 @@ class FSMTemplate:
     def save_record(self) -> None:
         [value.save() for value in self._values.values()]  # type: ignore[func-returns-value]
 
-    def current_values(self) -> 'list[str | None]':
+    def current_values(self) -> 'typing.List[typing.Union[str, None]]':
         return [value.value for value in self._values.values()]
