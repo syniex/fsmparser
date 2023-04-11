@@ -21,6 +21,9 @@ class FSMState:
     def location(self) -> str:
         return f'{self._parent.location}:{self._line_no}'
 
+    def __len__(self) -> int:
+        return len(self.rules)
+
     def validate(self) -> None:
         for rule in self.rules:
             rule.validate()

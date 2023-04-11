@@ -4,6 +4,7 @@ import typing
 from pathlib import Path
 
 from ._exceptions import TemplateError, TemplateNotFound
+from ._operations import OperationRecord
 from ._state import FSMState
 from ._value import FSMValue
 
@@ -19,7 +20,7 @@ class FSMTemplate:
         self._content = self._load_content(template)
         self._template = template
         self._values: 'typing.Dict[str, FSMValue]' = {}
-        self._states: 'typing.Dict[str, FSMState]' = {}
+        self.states: 'typing.Dict[str, FSMState]' = {}
         self._results: 'typing.List[typing.List[typing.Union[str, None]]]' = []
         self._parse_template()
         self.validate()
@@ -45,8 +46,16 @@ class FSMTemplate:
         return {value.name: value.template for value in self._values.values()}
 
     def reset(self) -> None:
-        self._current_state: 'FSMState' = self._states['Start']  # pylint: disable=W0201
+        self._current_state: 'FSMState' = self.states['Start']  # pylint: disable=W0201
         self._results.clear()
+
+    @property
+    def current_state(self) -> 'FSMState':
+        return self._current_state
+
+    @current_state.setter
+    def current_state(self, state: 'FSMState') -> None:
+        self._current_state = state
 
     def _parse_template(self) -> None:
         self._parse_variables()
@@ -76,9 +85,9 @@ class FSMTemplate:
                 continue
             if FSMState.name_re.match(line):
                 state = FSMState(self, line, index)
-                if state.name in self._states:
-                    raise TemplateError(f'Duplicate state `{self._states[state.name].location}` and `{state.location}`')
-                self._states[state.name] = state
+                if state.name in self.states:
+                    raise TemplateError(f'Duplicate state `{self.states[state.name].location}` and `{state.location}`')
+                self.states[state.name] = state
                 continue
             if state is None:
                 continue
@@ -88,11 +97,15 @@ class FSMTemplate:
         self._content.seek(0)
 
     def validate(self) -> None:
-        if 'Start' not in self._states:
+        if 'Start' not in self.states:
             raise TemplateError(f'`Start` state doe not exists in template: `{self.location}`')
+        if 'EOF' in self.states and len(self.states['EOF']):
+            raise TemplateError(f'`EOF` state Must be empty `{self.location}`')
+        if 'End' in self.states and len(self.states['End']):
+            raise TemplateError(f'`End` state Must be empty `{self.location}`')
         for value in self._values.values():
             value.validate()
-        for state in self._states.values():
+        for state in self.states.values():
             state.validate()
 
     @property
@@ -109,7 +122,7 @@ class FSMTemplate:
             for name, value in matched.groupdict().items():
                 if (fsm_value := self._values.get(name)) is not None:
                     fsm_value.value = value
-            rule.run_operation()
+            rule.run_operation(self)
             if rule.break_current_state():
                 break
 
@@ -117,6 +130,11 @@ class FSMTemplate:
         self.reset()
         for line in _input.splitlines():
             self._check_line(line)
+            if self._current_state.name in ('EOF', 'End'):
+                break
+
+        if self._current_state.name != 'End' and 'EOF' not in self.states:
+            OperationRecord.execute(self)
         return self.results
 
     def clear_record(self) -> None:

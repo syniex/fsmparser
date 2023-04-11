@@ -2,7 +2,6 @@ import typing
 
 from fsmparser._template._options import SkipRecord
 from fsmparser._template._rule import FSMRule
-from fsmparser.exceptions import FSMError
 
 
 if typing.TYPE_CHECKING:
@@ -22,7 +21,8 @@ class Operation:
     def validate(self) -> None:
         ...
 
-    def execute(self) -> None:
+    @staticmethod
+    def execute(template: 'FSMTemplate') -> None:
         ...
 
     def __init_subclass__(cls: 'typing.Type[Operation]') -> None:
@@ -33,20 +33,21 @@ class Operation:
 
 
 class OperationRecord(Operation):
-    def execute(self) -> None:
-        if not self._template._values:
+    @staticmethod
+    def execute(template: 'FSMTemplate') -> None:
+        if not template._values:
             return
         try:
-            self._template.save_record()
+            template.save_record()
         except SkipRecord:
-            self._template.clear_record()
+            template.clear_record()
             return
 
-        current_record = self._template.current_values()
+        current_record = template.current_values()
         if len(current_record) == current_record.count(None):
             return
-        self._template._results.append(current_record)
-        [value.clear() for value in self._template._values.values()]  # type: ignore[func-returns-value]
+        template._results.append(current_record)
+        [value.clear() for value in template._values.values()]  # type: ignore[func-returns-value]
 
 
 class OperationNoRecord(Operation):
@@ -54,14 +55,7 @@ class OperationNoRecord(Operation):
 
 
 class OperationError(Operation):
-    def __init__(self, template: 'FSMTemplate', rule: 'FSMRule') -> None:
-        super().__init__(template, rule)
-        self.error: 'typing.Union[str,None]' = None
-
-    def execute(self) -> None:
-        if self.error is not None:
-            raise FSMError(f'Error: {self.error}. Rule Line: {self._rule.line}.')
-        raise FSMError(f'State Error raised. Rule Line: {self._rule.line}.')
+    ...
 
 
 class LineOperation:
