@@ -16,6 +16,7 @@ class FSMValue:
         self._line_no = line_no
         self._value: 'str | None' = None
         self._options: 'list[FSMBaseOption]' = []
+        self.options: 'list[str]' = []
         self._parse()
 
     def validate(self) -> None:
@@ -58,6 +59,7 @@ class FSMValue:
         if option_name in [option.name for option in self._options]:
             raise ParseError(f'Duplicate option: {repr(option)}')
         self._options.append(FSMBaseOption.registry[option_name](self, match.group('param')))
+        self.options.append(option_name)
 
     @property
     def value(self) -> 'str | None':
